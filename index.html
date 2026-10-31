@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#101a23" />
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/src/style.css" />
+    <title>Рука цела — Паук против человека</title>
+  </head>
+  <body>
+    <canvas id="scene" aria-label="Ночная спальня, игра от третьего лица"></canvas>
+    <div id="shade"></div>
+    <div
+      id="cinema-fade"
+      style="
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background: #000;
+        opacity: 0;
+        z-index: 4;
+      "
+    ></div>
+    <div
+      id="cinema-hint"
+      style="
+        position: fixed;
+        bottom: 8%;
+        width: 100%;
+        text-align: center;
+        pointer-events: none;
+        z-index: 5;
+      "
+    ></div>
+    <header>
+      <div class="brand">РУКА ЦЕЛА <small>ПАУК ПРОТИВ ЧЕЛОВЕКА</small></div>
+      <div class="actions">
+        <label
+          >Графика
+          <select id="quality" aria-label="Качество графики">
+            <option value="high">Высокое</option>
+            <option value="medium">Среднее</option>
+            <option value="low">Низкое</option>
+          </select></label
+        >
+        <button id="sound" aria-label="Переключить звук">Звук: вкл.</button>
+        <button id="pause">Пауза</button>
+      </div>
+    </header>
+    <main>
+      <section id="loading" class="panel">
+        <div class="eyebrow">НОЧНАЯ СПАЛЬНЯ</div>
+        <h1>Ночь<br /><em>просыпается.</em></h1>
+        <p id="load-status">Строим спальню и подготавливаем шейдеры…</p>
+        <div class="loading-line"></div>
+      </section>
+      <section id="intro" class="panel hidden">
+        <div class="eyebrow">ОДНА КОМНАТА · СПЯЩИЙ ГИГАНТ · ТЫ</div>
+        <h1>Ночь гораздо<br /><em>больше тебя.</em></h1>
+        <p>
+          Из-под двери — через мебель и кровать — к кисти человека.<br />Прокладывай страховочный
+          путь. Выбирай укрытия.<br />И главное: не разбуди великана.
+        </p>
+        <button id="start" class="primary">Начать ночь <span>↗</span></button>
+        <div class="controls">
+          <b>WASD</b> движение по поверхностям · <b>МЫШЬ</b> обзор<br /><b>ПРОБЕЛ</b> прыжок ·
+          <b>SHIFT</b> бег · <b>CTRL</b> тихо<br /><b>ЛКМ / E</b> держать нить ·
+          <b>W НА НИТИ</b> подтянуться<br /><b>ESC</b> пауза · без захвата мыши: обзор с зажатой ПКМ
+        </div>
+        <div id="best">Рекорд этой спальни: —</div>
+        <small>Маршрут рассчитан на 3–5 минут. Можно исследовать всю комнату.</small>
+        <details>
+          <summary>Авторы моделей и лицензии</summary>
+          <p>
+            Black widow spider —
+            <a
+              href="https://sketchfab.com/majidakbarimoganjogi"
+              target="_blank"
+              rel="noopener noreferrer"
+              >majidakbarimoganjogi</a
+            >, CC BY 4.0.<br />bed —
+            <a href="https://sketchfab.com/hectopod" target="_blank" rel="noopener noreferrer"
+              >hectopod</a
+            >, CC BY 4.0.<br />Мебель и декор — Poly Haven, CC0.<br />Модели оптимизированы, масштаб
+            и анимация адаптированы.<br />Человек — архив владельца проекта; автор и право
+            распространения требуют уточнения.
+          </p>
+        </details>
+      </section>
+      <section id="paused" class="panel hidden">
+        <div class="eyebrow">МИР ЗАМЕР</div>
+        <h1>Тише.<br /><em>Пауза.</em></h1>
+        <p>
+          Качество меняется здесь, а не посреди прыжка.<br />Автоснижение ждёт паузы или чекпоинта.
+        </p>
+        <label for="sensitivity">Чувствительность мыши</label>
+        <input id="sensitivity" type="range" min="0.25" max="2" step="0.05" value="1" />
+        <label><input id="invert-y" type="checkbox" /> Инверсия Y</label>
+        <p>F3 — коллайдеры и лучи столкновений</p>
+        <button id="resume" class="primary">Продолжить ↗</button>
+        <button id="checkpoint-pause">С последнего чекпоинта</button>
+      </section>
+      <section id="end" class="panel hidden">
+        <div id="end-label" class="eyebrow"></div>
+        <h1 id="end-title"></h1>
+        <p id="end-detail"></p>
+        <button id="checkpoint" class="primary">С чекпоинта ↗</button>
+        <button id="restart">Ещё одна ночь</button>
+        <button id="menu">В меню</button>
+      </section>
+    </main>
+    <aside id="hud" class="hidden">
+      <div class="hud-top">
+        <div>
+          <span id="zone" class="eyebrow">01 / ПОЛ И МЕБЕЛЬ</span><strong id="timer">0:00</strong>
+        </div>
+        <div class="meters">
+          <div>ШУМ <span id="noise-value">0%</span></div>
+          <div class="meter"><i id="noise"></i></div>
+          <div>ПРОБУЖДЕНИЕ <span id="awake-value">0%</span></div>
+          <div class="meter"><i id="awake"></i></div>
+        </div>
+      </div>
+      <div id="crosshair"><i></i></div>
+      <div id="anchor-hint"></div>
+      <div id="warning" class="hidden" role="status"></div>
+      <div id="objective">
+        <span class="eyebrow" id="objective-label">СТРАХОВОЧНЫЙ МАРШРУТ</span>
+        <h2 id="objective-title"></h2>
+        <p id="objective-detail"></p>
+        <div class="meter"><i id="route-progress"></i></div>
+      </div>
+      <div id="compass"></div>
+      <div id="status"></div>
+      <div id="help">
+        WASD ход · Мышь обзор · Space прыжок · Shift бег · Ctrl тихо · E нить · Q спуск · R
+        безопасная точка · Esc пауза
+      </div>
+    </aside>
+    <footer>
+      <span id="quality-status">НОЧНАЯ СПАЛЬНЯ / THREE.JS</span><span id="performance"></span>
+    </footer>
+    <div id="error" class="hidden" role="alert"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

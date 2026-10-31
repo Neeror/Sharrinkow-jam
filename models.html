@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Рука цела — проверка ассетов</title>
+    <link rel="icon" href="data:,">
+    <style>
+      body { margin: 0; background: #16212b; color: #fff; font: 16px sans-serif; overflow: hidden; }
+      #status { position: fixed; top: 20px; left: 20px; padding: 16px; background: #101820dd; max-width: 420px; }
+      select { margin-top: 10px; padding: 8px; }
+    </style>
+  </head>
+  <body>
+    <div id="status"><span id="progress">Загрузка моделей…</span><br><select id="model" aria-label="Модель"></select></div>
+    <script type="module" src="/src/model-review.js"></script>
+  </body>
+</html>
